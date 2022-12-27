@@ -1,12 +1,20 @@
 # Image Restoration Script
 
-This python script is designed to batch upscale historic images, with the option to colorize the image as well. The script uses the [Wand](https://pypi.org/project/Wand/) and [Pillow](https://pillow.readthedocs.io/en/stable/) libraries to process images, and the [requests](https://pypi.org/project/requests/) library to make HTTP requests. It also uses the [Replicate](https://pypi.org/project/replicate/) library to access pre-trained machine learning models in the cloud for upscaling and colorization.
+This python script is designed to batch upscale historic images, with the option to colorize the image as well. The script uses the [Wand](https://pypi.org/project/Wand/) and [Pillow](https://pypi.org/project/Pillow/) libraries to process images. It also uses the [Replicate](https://pypi.org/project/replicate/) library to access pre-trained machine learning models in the cloud for upscaling and colorization.
 
 ## Summary
 
 -   Uses AI to colorize (model: bigcolor) and upscale (model: real-esrgan) old photos
--   Utilizes replicate.com API for cloud computing
+-   Utilizes paid replicate.com API for cloud computing
 -   Built with Python 3.9.6
+
+## Example
+
+Original Image - [Source](https://www.facebook.com/photo/?fbid=1059495844211293)
+![Original Image](https://github.com/linusmimietz/Image-Restoration-Script/blob/main/example-image/original.jpg?raw=true)
+
+Processed Image - Script Result
+![Processed Image](https://github.com/linusmimietz/Image-Restoration-Script/blob/main/example-image/result.jpg?raw=true)
 
 ## Motivation
 
