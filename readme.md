@@ -24,7 +24,7 @@ This year I wanted to gift my grandma a couple of historic images of her hometow
 
 -   Install requirements: `pip3 install -r requirements.txt`
 -   Install ImageMagick via terminal (example macOS): `brew install imagemagick`
--   Set replicate.com token with the terminal: `export REPLICATE_API_TOKEN=[token]` (this is recommended for not having to provide the key every time the script runs)
+-   Set replicate.com token with the terminal (example macOS): `export REPLICATE_API_TOKEN=[token]` (this is recommended for not having to provide the key every time the script runs)
 -   Run the script via the terminal like: `python3 script.py`
 
 ### Tip to get Wand working with ImageMagick 7 on macOS:

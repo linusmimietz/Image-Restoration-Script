@@ -2,7 +2,7 @@ from io import BytesIO
 from itertools import repeat
 from wand.image import Image
 from PIL import Image as PILImage
-import os, re, numpy, requests, replicate, multiprocessing, tqdm
+import os, re, numpy, requests, replicate, multiprocessing, tqdm, platform
 threadCount = 4
 
 def upscaleImage(args):
@@ -65,7 +65,9 @@ if __name__ == "__main__":
             print("Error: API key is empty")
             exit()
         os.environ['REPLICATE_API_TOKEN'] = apiKey
-    folderPath = input("Please enter the folder path of the target images: ").rstrip().replace("\\", "")
+    folderPath = input("Please enter the folder path of the target images: ").rstrip()
+    if platform.system() == "Darwin":
+        folderPath = folderPath.replace("\\", "")
     if not os.path.isdir(folderPath):
         print("Error: Folder does not exist")
         exit()
