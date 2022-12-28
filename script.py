@@ -42,7 +42,10 @@ def upscaleImage(args):
             with Image(blob=response.content) as img:
                 img.quality = 100
                 img.save(filename=tempFolderPath + delimiter + imageUrl.replace("https://replicate.delivery/pbxt/", "").replace("/output.png", "") + ".png")
-        os.system("convert " + tempFolderPath + delimiter + "*.png -average " + tempFolderPath + delimiter + "average.png")
+        if platform.system() == "Windows":
+            os.system("magick convert " + tempFolderPath + delimiter + "*.png -average " + tempFolderPath + delimiter + "average.png")
+        else:
+            os.system("convert " + tempFolderPath + delimiter + "*.png -average " + tempFolderPath + delimiter + "average.png")
 
     # upscale the image
     if colorization:
