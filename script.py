@@ -2,7 +2,7 @@ from io import BytesIO
 from itertools import repeat
 from wand.image import Image
 from PIL import Image as PILImage
-import os, re, numpy, requests, replicate, multiprocessing, tqdm, platform
+import os, re, numpy, requests, replicate, multiprocessing, tqdm, platform, shutil
 threadCount = 4
 delimiter = "\\" if platform.system() == "Windows" else "/"
 
@@ -27,10 +27,7 @@ def upscaleImage(args):
             model = replicate.models.get("cjwbw/bigcolor")
             version = model.versions.get("9451bfbf652b21a9bccc741e5c7046540faa5586cfa3aa45abc7dbb46151a4f7")
             outputArray = version.predict(image=open(tempFolderPath + delimiter + "grayscale.png", "rb"))
-            if platform.system() == "Windows":
-                os.system("del " + tempFolderPath + "\grayscale.png")
-            else:
-                os.system("rm " + tempFolderPath + delimiter + "grayscale.png")
+            os.remove(tempFolderPath + delimiter + "grayscale.png")
             imageUrls = [i["image"] for i in outputArray]
             imageUrls.pop() # remove last image because it's often ugly
         # create average image from four recolored images
@@ -51,14 +48,11 @@ def upscaleImage(args):
     if colorization:
         os.rename(tempFolderPath + delimiter + "average.png", tempFolderPath + delimiter + "low-res.png")
     else:
-        os.system("cp " + imagePath + " " + tempFolderPath + delimiter + "low-res.png")
+        shutil.copy(imagePath, tempFolderPath + delimiter + "low-res.png")
     model = replicate.models.get("nightmareai/real-esrgan")
     version = model.versions.get("42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b")
     imageUrl = version.predict(image=open(tempFolderPath + delimiter + "low-res.png", "rb"),scale=4,face_enhance=False)
-    if platform.system() == "Windows":
-        os.system("rmdir /s /q " + tempFolderPath)
-    else:
-        os.system("rm -rf " + tempFolderPath)
+    shutil.rmtree(tempFolderPath)
     # download and save the image
     response = requests.get(imageUrl)
     if response.status_code != 200:
