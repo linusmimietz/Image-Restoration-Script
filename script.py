@@ -42,7 +42,7 @@ def upscaleImage(args):
         if platform.system() == "Windows":
             os.system("magick convert " + tempFolderPath + delimiter + "*.png -average " + tempFolderPath + delimiter + "average.png")
         else:
-            os.system("convert " + tempFolderPath + delimiter + "*.png -average " + tempFolderPath + delimiter + "average.png")
+            os.system('convert "' + tempFolderPath + delimiter + '*.png" -average ' + tempFolderPath + delimiter + "average.png")
 
     # upscale the image
     if colorization:
