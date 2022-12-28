@@ -11,9 +11,10 @@ def upscaleImage(args):
     if not os.path.isfile(imagePath) or not re.search(r'.(png|jpg|jpeg)$', imagePath):
         print("Error: File does not exist or is not a JPG/PNG image: " + imagePath)
         exit()
-    imagePathWithoutExtension = re.sub(r'.(png|jpg|jpeg)$', "", imagePath)
-    tempFolderName = "temp-" + str(numpy.random.randint(1000000000))
-    os.makedirs(tempFolderName)
+    parentFolderPath = os.path.dirname(imagePath)
+    filename = os.path.basename(imagePath).split(".")[0]
+    tempFolderPath = parentFolderPath + delimiter + "temp-processing-" + str(filename)
+    os.makedirs(tempFolderPath)
     
     if colorization:
         # downscale and recolor image
@@ -21,12 +22,15 @@ def upscaleImage(args):
             img.transform(resize="1000x1000>")
             # convert to grayscale
             imgPil = PILImage.open(BytesIO(img.make_blob("png"))).convert("L")
-            imgPil.save(tempFolderName + delimiter + "grayscale.png")
+            imgPil.save(tempFolderPath + delimiter + "grayscale.png")
             # recolor image
             model = replicate.models.get("cjwbw/bigcolor")
             version = model.versions.get("9451bfbf652b21a9bccc741e5c7046540faa5586cfa3aa45abc7dbb46151a4f7")
-            outputArray = version.predict(image=open(tempFolderName + delimiter + "grayscale.png", "rb"))
-            os.system("rm " + tempFolderName + delimiter + "grayscale.png")
+            outputArray = version.predict(image=open(tempFolderPath + delimiter + "grayscale.png", "rb"))
+            if platform.system() == "Windows":
+                os.system("del " + tempFolderPath + "\grayscale.png")
+            else:
+                os.system("rm " + tempFolderPath + delimiter + "grayscale.png")
             imageUrls = [i["image"] for i in outputArray]
             imageUrls.pop() # remove last image because it's often ugly
         # create average image from four recolored images
@@ -37,21 +41,21 @@ def upscaleImage(args):
                 exit()
             with Image(blob=response.content) as img:
                 img.quality = 100
-                img.save(filename=tempFolderName + delimiter + imageUrl.replace("https://replicate.delivery/pbxt/", "").replace("/output.png", "") + ".png")
-        os.system("convert " + tempFolderName + delimiter + "*.png -average " + tempFolderName + delimiter + "average.png")
+                img.save(filename=tempFolderPath + delimiter + imageUrl.replace("https://replicate.delivery/pbxt/", "").replace("/output.png", "") + ".png")
+        os.system("convert " + tempFolderPath + delimiter + "*.png -average " + tempFolderPath + delimiter + "average.png")
 
     # upscale the image
     if colorization:
-        os.rename(tempFolderName + delimiter + "average.png", tempFolderName + delimiter + "low-res.png")
+        os.rename(tempFolderPath + delimiter + "average.png", tempFolderPath + delimiter + "low-res.png")
     else:
-        os.system("cp " + imagePath + " " + tempFolderName + delimiter + "low-res.png")
+        os.system("cp " + imagePath + " " + tempFolderPath + delimiter + "low-res.png")
     model = replicate.models.get("nightmareai/real-esrgan")
     version = model.versions.get("42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b")
-    imageUrl = version.predict(image=open(tempFolderName + delimiter + "low-res.png", "rb"),scale=4,face_enhance=False)
+    imageUrl = version.predict(image=open(tempFolderPath + delimiter + "low-res.png", "rb"),scale=4,face_enhance=False)
     if platform.system() == "Windows":
-        os.system("rmdir /s /q " + tempFolderName)
+        os.system("rmdir /s /q " + tempFolderPath)
     else:
-        os.system("rm -rf " + tempFolderName)
+        os.system("rm -rf " + tempFolderPath)
     # download and save the image
     response = requests.get(imageUrl)
     if response.status_code != 200:
@@ -59,7 +63,7 @@ def upscaleImage(args):
         exit()
     with Image(blob=response.content) as img:
         img.quality = 80
-        img.save(filename=imagePathWithoutExtension + ("_upscaled_colorized.jpeg" if colorization else "_upscaled.jpeg"))
+        img.save(filename=re.sub(r'.(png|jpg|jpeg)$', "", imagePath) + ("_upscaled_colorized.jpeg" if colorization else "_upscaled.jpeg"))
 
 if __name__ == "__main__":
     apiKey = os.getenv('REPLICATE_API_TOKEN')
