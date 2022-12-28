@@ -73,6 +73,8 @@ if __name__ == "__main__":
     folderPath = input("Please enter the folder path of the target images: ").rstrip()
     if delimiter == "/":
         folderPath = folderPath.replace("\\", "")
+    else:
+        folderPath = folderPath.replace('"', "")
     if not os.path.isdir(folderPath):
         print("Error: Folder does not exist")
         exit()
